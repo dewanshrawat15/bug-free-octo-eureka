@@ -1,0 +1,182 @@
+# ============================================================
+# Environment & secrets
+# ============================================================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+secrets/
+
+# ============================================================
+# Python
+# ============================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+.installed.cfg
+MANIFEST
+.Python
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.env/
+.venv*/
+virtualenv/
+
+# pytest / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+nosetests.xml
+junit.xml
+*.log
+
+# mypy / pyright / ruff
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyright/
+.ruff_cache/
+
+# Django
+backend/staticfiles/
+backend/media/
+backend/*.sqlite3
+backend/db.sqlite3
+local_settings.py
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# ============================================================
+# Node / JavaScript / TypeScript
+# ============================================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnpm-store/
+
+# Vite / build output
+frontend/dist/
+frontend/dist-ssr/
+frontend/.vite/
+*.local
+
+# TypeScript
+*.tsbuildinfo
+
+# ============================================================
+# Docker
+# ============================================================
+# Don't ignore compose files themselves, but ignore overrides with secrets
+docker-compose.override.yml
+docker-compose.local.yml
+
+# ============================================================
+# Temporal
+# ============================================================
+temporal-config/dynamicconfig/*.yaml.bak
+
+# ============================================================
+# macOS
+# ============================================================
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.DocumentRevisions-V100
+.TemporaryItems
+
+# ============================================================
+# Linux
+# ============================================================
+*~
+.nfs*
+
+# ============================================================
+# Windows
+# ============================================================
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# ============================================================
+# IDEs & editors
+# ============================================================
+.idea/
+.vscode/
+*.swp
+*.swo
+*.swn
+*.bak
+*.orig
+*.rej
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+.history/
+.fleet/
+
+# ============================================================
+# Testing & CI artifacts
+# ============================================================
+.tox/
+.nox/
+test-results/
+playwright-report/
+playwright/.cache/
+
+# ============================================================
+# Uploads / user data (never commit)
+# ============================================================
+backend/media/resumes/
+backend/media/uploads/
+
+# ============================================================
+# Misc
+# ============================================================
+*.pid
+*.seed
+*.pid.lock
+*.gz
+*.tar
+*.zip
+*.rar
+.cache/
+tmp/
+temp/
