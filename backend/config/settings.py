@@ -55,21 +55,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-_db_url = os.environ.get("DATABASE_URL", "postgresql://career:career@db:5432/career")
-_db_parts = _db_url.replace("postgresql://", "").split("/")
-_db_creds, _db_host_port = _db_parts[0].split("@")
-_db_user, _db_pass = _db_creds.split(":")
-_db_host, _db_port = _db_host_port.split(":")
+import dj_database_url
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": _db_parts[1],
-        "USER": _db_user,
-        "PASSWORD": _db_pass,
-        "HOST": _db_host,
-        "PORT": _db_port,
-    }
+    "default": dj_database_url.config(
+        default="postgresql://career:career@db:5432/career",
+        conn_max_age=600,
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
