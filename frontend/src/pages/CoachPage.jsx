@@ -20,6 +20,7 @@ const REJECTION_REASONS = [
   "Something else",
 ];
 
+
 // Lightweight markdown renderer.
 // Handles **bold**, numbered items (1.), bullets (* or -), and nested bullets under numbered items.
 function MarkdownText({ content }) {
