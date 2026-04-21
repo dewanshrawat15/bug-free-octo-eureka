@@ -1,49 +1,37 @@
-import json
-import httpx
+from openai import OpenAI
 from django.conf import settings
 from typing import Iterator
 
 
-def _url(path: str) -> str:
-    return f"{settings.OLLAMA_BASE_URL}{path}"
+def _client() -> OpenAI:
+    return OpenAI(api_key=settings.LLM_API_KEY, base_url=settings.LLM_BASE_URL)
 
 
 def chat_stream(messages: list[dict], system: str = "") -> Iterator[str]:
-    """Yields token strings from Ollama streaming chat."""
-    payload = {
-        "model": settings.OLLAMA_MODEL,
-        "messages": _build_messages(messages, system),
-        "stream": True,
-    }
-    with httpx.stream("POST", _url("/api/chat"), json=payload, timeout=120) as resp:
-        resp.raise_for_status()
-        for line in resp.iter_lines():
-            if not line:
-                continue
-            try:
-                data = json.loads(line)
-                token = data.get("message", {}).get("content", "")
-                if token:
-                    yield token
-                if data.get("done"):
-                    break
-            except json.JSONDecodeError:
-                continue
+    """Yields token strings from Groq streaming chat."""
+    stream = _client().chat.completions.create(
+        model=settings.LLM_MODEL,
+        messages=_build_messages(messages, system),
+        stream=True,
+        timeout=120,
+    )
+    for chunk in stream:
+        token = chunk.choices[0].delta.content or ""
+        if token:
+            yield token
 
 
 def chat_complete(messages: list[dict], system: str = "", json_mode: bool = False) -> str:
-    """Returns full response string from Ollama (non-streaming)."""
-    payload = {
-        "model": settings.OLLAMA_MODEL,
+    """Returns full response string from Groq (non-streaming)."""
+    kwargs = {
+        "model": settings.LLM_MODEL,
         "messages": _build_messages(messages, system),
-        "stream": False,
+        "timeout": 120,
     }
     if json_mode:
-        payload["format"] = "json"
-
-    resp = httpx.post(_url("/api/chat"), json=payload, timeout=120)
-    resp.raise_for_status()
-    return resp.json()["message"]["content"]
+        kwargs["response_format"] = {"type": "json_object"}
+    resp = _client().chat.completions.create(**kwargs)
+    return resp.choices[0].message.content
 
 
 def _build_messages(messages: list[dict], system: str) -> list[dict]:

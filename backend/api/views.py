@@ -1,5 +1,4 @@
 import json
-import asyncio
 import hashlib
 import time
 import uuid
@@ -24,13 +23,6 @@ from services import resume_parser
 from services.agents import extractor, persona_detector, topic_classifier, conversation_router
 from services.agents.opening_generator import generate_stream
 from services.agents.extractor import ResumeProfile
-
-
-def _get_temporal_client():
-    from temporalio.client import Client
-    return asyncio.get_event_loop().run_until_complete(
-        Client.connect(settings.TEMPORAL_HOST, namespace=settings.TEMPORAL_NAMESPACE)
-    )
 
 
 class SignupView(APIView):
@@ -119,25 +111,7 @@ class SessionListView(APIView):
         if not profile.profile_json:
             return Response({"error": "Upload a resume first"}, status=status.HTTP_400_BAD_REQUEST)
 
-        session = Session.objects.create(user=request.user, status=Session.Status.INTAKE)
-
-        try:
-            client = _get_temporal_client()
-            wf_id = f"career-coach-{session.id}"
-            asyncio.get_event_loop().run_until_complete(
-                client.start_workflow(
-                    "CareerCoachWorkflow",
-                    args=[str(session.id), profile.resume_path],
-                    id=wf_id,
-                    task_queue=settings.TEMPORAL_TASK_QUEUE,
-                )
-            )
-            session.workflow_id = wf_id
-            session.status = Session.Status.PERSONA_DETECTED
-            session.save()
-        except Exception as e:
-            session.status = Session.Status.PERSONA_DETECTED
-            session.save()
+        session = Session.objects.create(user=request.user, status=Session.Status.PERSONA_DETECTED)
 
         _record_event(request.user, session, "session_started", {})
         return Response(SessionSerializer(session).data, status=status.HTTP_201_CREATED)

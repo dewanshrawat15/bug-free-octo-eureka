@@ -1,3 +1,5 @@
+const API_BASE = import.meta.env.VITE_API_URL || "";
+
 const getToken = () => {
   try {
     const stored = JSON.parse(localStorage.getItem("auth-storage") || "{}");
@@ -12,7 +14,7 @@ async function request(method, path, body, isFormData = false) {
   const headers = token ? { Authorization: `Token ${token}` } : {};
   if (!isFormData) headers["Content-Type"] = "application/json";
 
-  const res = await fetch(path, {
+  const res = await fetch(`${API_BASE}${path}`, {
     method,
     headers,
     body: body ? (isFormData ? body : JSON.stringify(body)) : undefined,
@@ -33,7 +35,7 @@ export const api = {
 
 export async function streamSSE(path, onToken, onDone, onError) {
   const token = getToken();
-  const res = await fetch(path, {
+  const res = await fetch(`${API_BASE}${path}`, {
     headers: token ? { Authorization: `Token ${token}` } : {},
   });
 

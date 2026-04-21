@@ -13,54 +13,15 @@ services:
       timeout: 5s
       retries: 10
 
-  temporal-ui:
-    image: temporalio/ui:latest
-    ports:
-      - "8088:8080"
-    environment:
-      - TEMPORAL_ADDRESS=temporal:7233
-      - TEMPORAL_CORS_ORIGINS=http://localhost:8088
-    depends_on:
-      temporal:
-        condition: service_healthy
-
-  temporal:
-    image: temporalio/auto-setup:1.24.2
-    ports:
-      - "7233:7233"
-    environment:
-      - DB=postgres12
-      - DB_PORT=5432
-      - POSTGRES_USER=career
-      - POSTGRES_PWD=career
-      - POSTGRES_SEEDS=db
-      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development-sql.yaml
-    depends_on:
-      db:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "tctl", "--address", "temporal:7233", "cluster", "health"]
-      interval: 10s
-      timeout: 10s
-      retries: 20
-      start_period: 30s
-    volumes:
-      - ./temporal-config:/etc/temporal/config/dynamicconfig
-
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
     env_file: .env
     environment:
       DATABASE_URL: postgresql://career:career@db:5432/career
-      TEMPORAL_HOST: temporal:7233
     depends_on:
       db:
-        condition: service_healthy
-      temporal:
         condition: service_healthy
     volumes:
       - ./backend:/app
@@ -69,24 +30,6 @@ services:
       sh -c "python manage.py migrate &&
              python manage.py collectstatic --noinput &&
              gunicorn config.wsgi:application --bind 0.0.0.0:8000 --worker-class gthread --workers 2 --threads 4 --timeout 600"
-
-  worker:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    env_file: .env
-    environment:
-      DATABASE_URL: postgresql://career:career@db:5432/career
-      TEMPORAL_HOST: temporal:7233
-    depends_on:
-      db:
-        condition: service_healthy
-      temporal:
-        condition: service_healthy
-    volumes:
-      - ./backend:/app
-      - media_data:/app/media
-    command: python worker.py
 
   frontend:
     build:
